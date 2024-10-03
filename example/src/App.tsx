@@ -1,6 +1,11 @@
 import { View, Button, Text } from 'react-native';
-import { Dialog, useDialog, type DialogProps, useDialogProps } from 'redialog';
-import { DialogHandle } from '../../src/component/DialogHandle';
+import {
+  Dialog,
+  useDialog,
+  type DialogProps,
+  useDialogProps,
+  DialogHandle,
+} from 'redialog';
 import { useState } from 'react';
 
 export default function App() {

@@ -6,14 +6,14 @@ import {
   useRef,
   type RefObject,
 } from 'react';
-import type { DialogRef, DialogProps } from 'redialog';
-import { useStableCallback } from '@mj-studio/react-util';
+import type { DialogProps, DialogRef } from '../component/Dialog';
+import { useStableCallback } from '../internal/useStableCallback';
 
 export function useDialogProps(props: DialogProps): [
   dialogProps: Omit<DialogProps, 'children'> & {
     ref: RefObject<DialogRef<any>>;
   },
-  {
+  options: {
     show: () => void;
     hide: () => void;
   },
@@ -23,7 +23,7 @@ export function useDialogProps<T>(props: DialogProps<T>): [
   dialogProps: Omit<DialogProps, 'children'> & {
     ref: RefObject<DialogRef<any>>;
   },
-  {
+  options: {
     params?: T;
     show: (params: T) => void;
     hide: () => void;

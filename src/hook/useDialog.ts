@@ -1,7 +1,7 @@
 import { useRef, type ComponentType, type RefObject } from 'react';
-import { useStableCallback } from '@mj-studio/react-util';
 import type { ExtractShowFromComponent } from '../internal/type';
 import type { DialogProps, DialogRef } from '../component/Dialog';
+import { useStableCallback } from '../internal/useStableCallback';
 
 export function useDialog(): [
   RefObject<DialogRef>,

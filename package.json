@@ -82,7 +82,7 @@
     "react-native-builder-bob": "^0.30.2",
     "react-native-reanimated": "3",
     "release-it": "^15.0.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.6.2"
   },
   "resolutions": {
     "@types/react": "^18.2.44"
@@ -185,6 +185,5 @@
   "create-react-native-library": {
     "type": "library",
     "version": "0.41.2"
-  },
-  "dependencies": {}
+  }
 }

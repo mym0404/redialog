@@ -1,5 +1,6 @@
 import type { ReactNode, ComponentType } from 'react';
-import { useDialog, type DialogProps } from 'redialog';
+import type { DialogProps } from './Dialog';
+import { useDialog } from '../hook/useDialog';
 
 export function DialogHandle<T extends ComponentType<DialogProps<any>>>(props: {
   children?: (
@@ -21,7 +22,7 @@ export function DialogHandle({
   children,
 }: {
   children?: (...args: any[]) => any;
-}) {
+}): never {
   const [dialog, params] = useDialog();
-  return children?.({ dialog, ...params });
+  return children?.({ dialog, ...params }) as never;
 }

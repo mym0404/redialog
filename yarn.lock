@@ -2786,25 +2786,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mj-studio/js-util@npm:latest":
-  version: 1.1.18
-  resolution: "@mj-studio/js-util@npm:1.1.18"
-  checksum: 10/e8e6b321ea0b676d2ffd07a52b3e1efcf48aa65cbf89120b04b120f24a7f6bec8dfecb75f0dfb38cd270d6df6db3b4669978419a591cec1ea58ec8e4c0ea0648
-  languageName: node
-  linkType: hard
-
-"@mj-studio/react-util@npm:^0.0.28":
-  version: 0.0.28
-  resolution: "@mj-studio/react-util@npm:0.0.28"
-  dependencies:
-    "@mj-studio/js-util": "npm:latest"
-  peerDependencies:
-    react: ">=18.0.0"
-    react-dom: ">=18.0.0"
-  checksum: 10/7ee401afa929928740509e014c40d301738316c94aef46ffb298396be65a6e648cf5dc30f3e4911f82c64f5db0f2fcc1739e74558568c677c975bf1174f8d8b1
-  languageName: node
-  linkType: hard
-
 "@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1":
   version: 5.1.1-v1
   resolution: "@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1"
@@ -12844,7 +12825,6 @@ __metadata:
   dependencies:
     "@commitlint/config-conventional": "npm:^17.0.2"
     "@evilmartians/lefthook": "npm:^1.5.0"
-    "@mj-studio/react-util": "npm:^0.0.28"
     "@react-native/eslint-config": "npm:^0.73.1"
     "@release-it/conventional-changelog": "npm:^5.0.0"
     "@types/jest": "npm:^29.5.5"
@@ -12861,7 +12841,7 @@ __metadata:
     react-native-builder-bob: "npm:^0.30.2"
     react-native-reanimated: "npm:3"
     release-it: "npm:^15.0.0"
-    typescript: "npm:^5.2.2"
+    typescript: "npm:^5.6.2"
   peerDependencies:
     react: "*"
     react-native: "*"
@@ -14730,7 +14710,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.6.4 || ^5.2.2, typescript@npm:^5.2.2":
+"typescript@npm:^4.6.4 || ^5.2.2, typescript@npm:^5.6.2":
   version: 5.6.2
   resolution: "typescript@npm:5.6.2"
   bin:
@@ -14740,7 +14720,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^4.6.4 || ^5.2.2#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.2.2#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A^4.6.4 || ^5.2.2#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.6.2#optional!builtin<compat/typescript>":
   version: 5.6.2
   resolution: "typescript@patch:typescript@npm%3A5.6.2#optional!builtin<compat/typescript>::version=5.6.2&hash=8c6c40"
   bin:
