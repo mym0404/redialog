@@ -1,3 +1,4 @@
-export function multiply(a: number, b: number): Promise<number> {
-  return Promise.resolve(a * b);
-}
+export * from './component/Dialog';
+export { PortalHost as DialogPortalHost } from './internal/Portal';
+export * from './hook/useDialog';
+export * from './hook/useDialogProps';

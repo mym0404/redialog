@@ -1,30 +1,45 @@
-import { useState, useEffect } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
-import { multiply } from 'redialog';
+import { View, Button } from 'react-native';
+import { Dialog, useDialog, type DialogProps, useDialogProps } from 'redialog';
 
 export default function App() {
-  const [result, setResult] = useState<number | undefined>();
-
-  useEffect(() => {
-    multiply(3, 7).then(setResult);
-  }, []);
+  const [dialog, { show, hide }] = useDialog<typeof ExampleDialog>();
 
   return (
-    <View style={styles.container}>
-      <Text>Result: {result}</Text>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: '#111',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <Button
+        title={'Show'}
+        onPress={() => {
+          show({ data: 1 });
+        }}
+      />
+      <Button
+        title={'Hide'}
+        onPress={() => {
+          hide();
+        }}
+      />
+      <ExampleDialog dialog={dialog} />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  box: {
-    width: 60,
-    height: 60,
-    marginVertical: 20,
-  },
-});
+type ExampleDialogParams = {
+  data: number;
+};
+
+const ExampleDialog = (props: DialogProps<ExampleDialogParams>) => {
+  const [dialog] = useDialogProps(props);
+
+  return (
+    <Dialog dialog={dialog}>
+      <View style={{ padding: 100, backgroundColor: '#444' }} />
+    </Dialog>
+  );
+};
