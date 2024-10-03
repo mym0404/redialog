@@ -20,6 +20,7 @@ import {
   Pressable,
   type StyleProp,
   type ViewStyle,
+  View,
 } from 'react-native';
 import { useBackPress } from '../internal/useBackPress';
 import { Portal } from '../internal/Portal';
@@ -40,6 +41,7 @@ export type DialogProps<T = NoobSymbol> = PropsWithChildren<{
   backdropColor?: string;
   showAnimationValue?: SharedValue<number>;
   style?: StyleProp<ViewStyle>;
+  backdrop?: boolean;
   dialog: RefObject<DialogRef<T>>;
 }>;
 
@@ -88,6 +90,7 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
       showAnimationValue,
       children,
       style,
+      backdrop = true,
     },
     ref
   ) => {
@@ -145,10 +148,11 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
     const element = (
       <Animated.View
         aria-modal
+        accessible
         style={[styles.wrapper, styles.wrapperDialog, containerStyle]}
         pointerEvents={!isShow ? 'none' : 'box-none'}
       >
-        {backdropTouchToClose && (
+        {!backdrop ? null : backdropTouchToClose ? (
           <Pressable
             role={'button'}
             accessibilityHint={`Tap to close modal`}
@@ -157,6 +161,14 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
               { backgroundColor: backdropColor },
             ]}
             onPress={hide}
+          />
+        ) : (
+          <View
+            aria-hidden
+            style={[
+              StyleSheet.absoluteFill,
+              { backgroundColor: backdropColor },
+            ]}
           />
         )}
         <Animated.View style={[modalStyle, style]}>{children}</Animated.View>
