@@ -34,6 +34,7 @@ export type DialogRef<T = NoobSymbol> = T extends NoobSymbol
   ? { show: () => void; hide: () => void }
   : { show: (params: T) => void; hide: () => void };
 export type DialogProps<T = NoobSymbol> = PropsWithChildren<{
+  dialog?: RefObject<DialogRef<T>>;
   onShowStarted?: () => void;
   onShowEnd?: () => void;
   onHideStarted?: () => void;
@@ -45,7 +46,6 @@ export type DialogProps<T = NoobSymbol> = PropsWithChildren<{
   showAnimationValue?: SharedValue<number>;
   style?: StyleProp<ViewStyle>;
   backdrop?: boolean;
-  dialog: RefObject<DialogRef<T>>;
   bottomSheet?: boolean;
 }>;
 
