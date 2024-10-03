@@ -1,7 +1,7 @@
 import type { ReactNode, ComponentType } from 'react';
 import { useDialog, type DialogProps } from 'redialog';
 
-export function DialogHandle<T extends ComponentType<DialogProps>>(props: {
+export function DialogHandle<T extends ComponentType<DialogProps<any>>>(props: {
   children?: (
     params: {
       dialog: ReturnType<typeof useDialog<T>>[0];

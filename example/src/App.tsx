@@ -1,6 +1,7 @@
-import { View, Button } from 'react-native';
+import { View, Button, Text } from 'react-native';
 import { Dialog, useDialog, type DialogProps, useDialogProps } from 'redialog';
 import { DialogHandle } from '../../src/component/DialogHandle';
+import { useState } from 'react';
 
 export default function App() {
   const [paramsDialog, { show: showParamsDialog, hide: hideParamsDialog }] =
@@ -57,9 +58,23 @@ type ParamsDialogParams = {
 
 const ParamsDialog = (props: DialogProps<ParamsDialogParams>) => {
   const [dialog] = useDialogProps(props);
+  const [count, setCount] = useState(0);
   return (
     <Dialog dialog={dialog}>
-      <View style={{ padding: 100, backgroundColor: '#eee' }} />
+      <View style={{ padding: 100, backgroundColor: '#eee', gap: 16 }}>
+        {Array(count)
+          .fill(0)
+          .map((_, i) => {
+            return (
+              <View
+                key={i}
+                style={{ width: 100, height: 100, backgroundColor: 'red' }}
+              />
+            );
+          })}
+        <Text>Hello</Text>
+        <Button title={'Add'} onPress={() => setCount((c) => c + 1)} />
+      </View>
     </Dialog>
   );
 };

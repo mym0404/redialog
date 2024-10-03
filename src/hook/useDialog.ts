@@ -3,18 +3,18 @@ import { useStableCallback } from '@mj-studio/react-util';
 import type { ExtractShowFromComponent } from '../internal/type';
 import type { DialogProps, DialogRef } from '../component/Dialog';
 
-export function useDialog<T extends ComponentType<DialogProps>>(): [
-  RefObject<DialogRef>,
-  {
-    show: ExtractShowFromComponent<T>;
-    hide: () => void;
-  },
-];
-
 export function useDialog(): [
   RefObject<DialogRef>,
   {
     show: () => void;
+    hide: () => void;
+  },
+];
+
+export function useDialog<T extends ComponentType<DialogProps<any>>>(): [
+  RefObject<DialogRef>,
+  {
+    show: ExtractShowFromComponent<T>;
     hide: () => void;
   },
 ];

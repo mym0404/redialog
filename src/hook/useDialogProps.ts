@@ -4,26 +4,25 @@ import {
   useMemo,
   useImperativeHandle,
   useRef,
+  type RefObject,
 } from 'react';
 import type { DialogRef, DialogProps } from 'redialog';
 import { useStableCallback } from '@mj-studio/react-util';
 
-export function useDialogProps(
-  props: DialogProps,
-  extraProps?: Omit<DialogProps, 'children' | 'dialog'>
-): [
-  dialogProps: Omit<DialogProps, 'children'> & RefAttributes<DialogRef>,
+export function useDialogProps(props: DialogProps): [
+  dialogProps: Omit<DialogProps, 'children'> & {
+    ref: RefObject<DialogRef<any>>;
+  },
   {
     show: () => void;
     hide: () => void;
   },
 ];
 
-export function useDialogProps<T>(
-  props: DialogProps<T>,
-  extraProps?: Omit<DialogProps, 'children' | 'dialog'>
-): [
-  dialogProps: Omit<DialogProps, 'children'> & RefAttributes<DialogRef>,
+export function useDialogProps<T>(props: DialogProps<T>): [
+  dialogProps: Omit<DialogProps, 'children'> & {
+    ref: RefObject<DialogRef<any>>;
+  },
   {
     params?: T;
     show: (params: T) => void;
@@ -31,10 +30,7 @@ export function useDialogProps<T>(
   },
 ];
 
-export function useDialogProps(
-  props: any,
-  extraProps: Omit<DialogProps, 'children' | 'dialog'> = {}
-) {
+export function useDialogProps(props: any) {
   const [params, setParams] = useState();
   const dialogRef = useRef<DialogRef>(null);
 
@@ -56,15 +52,13 @@ export function useDialogProps(
     RefAttributes<DialogRef> = useMemo(() => {
     return {
       ...props,
-      ...extraProps,
       dialog: dialogRef,
       onHideEnd: () => {
         props.onHideEnd?.();
-        extraProps?.onHideEnd?.();
         setParams(undefined);
       },
     };
-  }, [props, dialogRef, extraProps]);
+  }, [props, dialogRef]);
 
   return [
     dialogProps,
