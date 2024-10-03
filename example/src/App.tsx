@@ -2,7 +2,12 @@ import { View, Button } from 'react-native';
 import { Dialog, useDialog, type DialogProps, useDialogProps } from 'redialog';
 
 export default function App() {
-  const [dialog, { show, hide }] = useDialog<typeof ExampleDialog>();
+  const [paramsDialog, { show: showParamsDialog, hide: hideParamsDialog }] =
+    useDialog<typeof ParamsDialog>();
+  const [
+    noParamsDialog,
+    { show: showNoParamsDialog, hide: hideNoParamsDialog },
+  ] = useDialog();
 
   return (
     <View
@@ -16,26 +21,50 @@ export default function App() {
       <Button
         title={'Show'}
         onPress={() => {
-          show({ data: 1 });
+          showParamsDialog({ data: 1 });
         }}
       />
       <Button
         title={'Hide'}
         onPress={() => {
-          hide();
+          hideParamsDialog();
         }}
       />
-      <ExampleDialog dialog={dialog} />
+      <Button
+        title={'Show'}
+        onPress={() => {
+          showNoParamsDialog();
+        }}
+      />
+      <Button
+        title={'Hide'}
+        onPress={() => {
+          hideNoParamsDialog();
+        }}
+      />
+      <ParamsDialog dialog={paramsDialog} />
+      <NoParamsDialog dialog={noParamsDialog} />
     </View>
   );
 }
 
-type ExampleDialogParams = {
+type ParamsDialogParams = {
   data: number;
 };
 
-const ExampleDialog = (props: DialogProps<ExampleDialogParams>) => {
-  const [dialog] = useDialogProps(props);
+const ParamsDialog = (props: DialogProps<ParamsDialogParams>) => {
+  const [dialog, { show }] = useDialogProps(props);
+  show({ data: 1 });
+  return (
+    <Dialog dialog={dialog}>
+      <View style={{ padding: 100, backgroundColor: '#444' }} />
+    </Dialog>
+  );
+};
+
+const NoParamsDialog = (props: DialogProps) => {
+  const [dialog, { show }] = useDialogProps(props);
+  show();
 
   return (
     <Dialog dialog={dialog}>
