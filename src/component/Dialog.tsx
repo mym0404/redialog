@@ -15,7 +15,12 @@ import Animated, {
   type SharedValue,
   ReduceMotion,
 } from 'react-native-reanimated';
-import { StyleSheet, Pressable } from 'react-native';
+import {
+  StyleSheet,
+  Pressable,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import { useBackPress } from '../internal/useBackPress';
 import { Portal } from '../internal/Portal';
 import type { NoobSymbol } from '../internal/type';
@@ -34,6 +39,7 @@ export type DialogProps<T = NoobSymbol> = PropsWithChildren<{
   portal?: boolean;
   backdropColor?: string;
   showAnimationValue?: SharedValue<number>;
+  style?: StyleProp<ViewStyle>;
   dialog: RefObject<DialogRef<T>>;
 }>;
 
@@ -81,6 +87,7 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
       backdropColor = '#111a',
       showAnimationValue,
       children,
+      style,
     },
     ref
   ) => {
@@ -152,7 +159,7 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
             onPress={hide}
           />
         )}
-        <Animated.View style={modalStyle}>{children}</Animated.View>
+        <Animated.View style={[modalStyle, style]}>{children}</Animated.View>
       </Animated.View>
     );
     if (portal) {
