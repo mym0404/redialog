@@ -14,7 +14,6 @@ export default function App() {
     <View
       style={{
         flex: 1,
-        backgroundColor: '#111',
         justifyContent: 'center',
         alignItems: 'center',
         gap: 20,
@@ -60,7 +59,7 @@ const ParamsDialog = (props: DialogProps<ParamsDialogParams>) => {
   const [dialog] = useDialogProps(props);
   return (
     <Dialog dialog={dialog}>
-      <View style={{ padding: 100, backgroundColor: '#444' }} />
+      <View style={{ padding: 100, backgroundColor: '#eee' }} />
     </Dialog>
   );
 };
@@ -70,7 +69,7 @@ const NoParamsDialog = (props: DialogProps) => {
 
   return (
     <Dialog dialog={dialog}>
-      <View style={{ padding: 100, backgroundColor: '#444' }} />
+      <View style={{ padding: 100, backgroundColor: '#eee' }} />
     </Dialog>
   );
 };
