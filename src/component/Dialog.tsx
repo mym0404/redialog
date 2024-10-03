@@ -5,6 +5,7 @@ import {
   useState,
   type RefObject,
   useRef,
+  useMemo,
 } from 'react';
 import Animated, {
   useAnimatedStyle,
@@ -38,11 +39,33 @@ export type DialogProps<T = NoobSymbol> = PropsWithChildren<{
 
 export const Dialog = ({
   children,
-  dialog: { dialog, ...rest },
-}: PropsWithChildren<{
-  dialog: Omit<DialogProps<any>, 'children'>;
-}>) => {
-  return <_Dialog {...rest} ref={dialog} children={children} />;
+  dialog,
+  ...props
+}: PropsWithChildren<
+  {
+    dialog: Omit<DialogProps<any>, 'children'>;
+  } & Omit<DialogProps<any>, 'children' | 'dialog'>
+>) => {
+  const { dialog: ref, ...propsFromDialog } = dialog;
+
+  const mergedProps = useMemo(() => {
+    const ret: any = { ...propsFromDialog, ...props };
+    Object.keys(propsFromDialog).forEach((_k) => {
+      const k = _k as keyof typeof propsFromDialog;
+      if (
+        typeof propsFromDialog[k] === 'function' &&
+        typeof props[k] === 'function'
+      ) {
+        ret[k] = (...args: any[]) => {
+          (propsFromDialog[k] as Function)(...args);
+          (props[k] as Function)(...args);
+        };
+      }
+    });
+    return ret;
+  }, [propsFromDialog, props]);
+
+  return <_Dialog ref={ref} children={children} {...mergedProps} />;
 };
 
 const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
