@@ -10,7 +10,7 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "clean": "del-cli lib",
     "build": "bob build",
-    "release": "yarn build && release-it --yes"
+    "release": "yarn build && yes | release-it"
   },
   "source": "./src/index.tsx",
   "main": "./lib/commonjs/index.js",
