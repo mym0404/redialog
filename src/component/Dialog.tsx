@@ -1,10 +1,10 @@
-import { useStableCallback, useTimeoutHandlers } from '@mj-studio/react-util';
 import {
   type PropsWithChildren,
   forwardRef,
   useImperativeHandle,
   useState,
   type RefObject,
+  useRef,
 } from 'react';
 import Animated, {
   useAnimatedStyle,
@@ -18,6 +18,7 @@ import { StyleSheet, Pressable } from 'react-native';
 import { useBackPress } from '../internal/useBackPress';
 import { Portal } from '../internal/Portal';
 import type { NoobSymbol } from '../internal/type';
+import { useStableCallback } from '../internal/useStableCallback';
 
 export type DialogRef<T = NoobSymbol> = T extends NoobSymbol
   ? { show: () => void; hide: () => void }
@@ -60,28 +61,26 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
     },
     ref
   ) => {
-    const { setAutoClearTimeout, clearAllTimers } = useTimeoutHandlers();
-
     const [isShow, setShow] = useState(false);
     const [isHiding, setHiding] = useState(false);
 
     const _showValue = useSharedValue(0);
     const showValue = showAnimationValue || _showValue;
 
+    const timeoutHandle = useRef<any>();
+
     const show = useStableCallback(() => {
-      clearAllTimers();
       setHiding(false);
       setShow(true);
       onShowStarted?.();
-      showValue.value = withTiming(
-        1,
-        { duration: 250, reduceMotion: ReduceMotion.Never },
-        (finished) => {
-          if (finished) {
-            onShowEnd?.();
-          }
-        }
-      );
+      clearTimeout(timeoutHandle.current);
+      showValue.value = withTiming(1, {
+        duration: 250,
+        reduceMotion: ReduceMotion.Never,
+      });
+      timeoutHandle.current = setTimeout(() => {
+        onShowEnd?.();
+      }, 250);
     });
     const hide = useStableCallback(() => {
       if (isHiding || !isShow) {
@@ -89,15 +88,16 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
       }
       onHideStarted?.();
       setHiding(true);
-      setAutoClearTimeout(() => {
-        onHideEnd?.();
-        setHiding(false);
-      }, 400);
       setShow(false);
+      clearTimeout(timeoutHandle.current);
       showValue.value = withTiming(0, {
         duration: 200,
         reduceMotion: ReduceMotion.Never,
       });
+      timeoutHandle.current = setTimeout(() => {
+        onHideEnd?.();
+        setHiding(false);
+      }, 350);
     });
 
     const containerStyle = useAnimatedStyle(() => ({

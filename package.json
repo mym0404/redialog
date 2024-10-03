@@ -187,6 +187,5 @@
     "version": "0.41.2"
   },
   "dependencies": {
-    "@mj-studio/react-util": "^0.0.28"
   }
 }
