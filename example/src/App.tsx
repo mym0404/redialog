@@ -53,6 +53,16 @@ export default function App() {
           </>
         )}
       </DialogHandle>
+      {/* BottomSheet */}
+      <DialogHandle>
+        {({ show, hide, dialog }) => (
+          <>
+            <Button title={'Show'} onPress={show} />
+            <Button title={'Hide'} onPress={hide} />
+            <BottomSheetDialog dialog={dialog} />
+          </>
+        )}
+      </DialogHandle>
     </View>
   );
 }
@@ -90,6 +100,29 @@ const NoParamsDialog = (props: DialogProps) => {
   return (
     <Dialog dialog={dialog}>
       <View style={{ padding: 100, backgroundColor: '#eee' }} />
+    </Dialog>
+  );
+};
+
+const BottomSheetDialog = (props: DialogProps) => {
+  const [dialog] = useDialogProps(props);
+  const [count, setCount] = useState(0);
+  return (
+    <Dialog dialog={dialog} bottomSheet style={{ backgroundColor: 'red' }}>
+      <View style={{ padding: 100, backgroundColor: 'transparent' }}>
+        {Array(count)
+          .fill(0)
+          .map((_, i) => {
+            return (
+              <View
+                key={i}
+                style={{ width: 100, height: 100, backgroundColor: 'blue' }}
+              />
+            );
+          })}
+        <Text>Hello</Text>
+        <Button title={'Add'} onPress={() => setCount((c) => c + 1)} />
+      </View>
     </Dialog>
   );
 };

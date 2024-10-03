@@ -21,6 +21,9 @@ import {
   type StyleProp,
   type ViewStyle,
   View,
+  type LayoutChangeEvent,
+  type LayoutRectangle,
+  useWindowDimensions,
 } from 'react-native';
 import { useBackPress } from '../internal/useBackPress';
 import { Portal } from '../internal/Portal';
@@ -43,6 +46,7 @@ export type DialogProps<T = NoobSymbol> = PropsWithChildren<{
   style?: StyleProp<ViewStyle>;
   backdrop?: boolean;
   dialog: RefObject<DialogRef<T>>;
+  bottomSheet?: boolean;
 }>;
 
 export const Dialog = ({
@@ -76,6 +80,7 @@ export const Dialog = ({
   return <_Dialog ref={ref} children={children} {...mergedProps} />;
 };
 
+const RePressable = Animated.createAnimatedComponent(Pressable);
 const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
   (
     {
@@ -91,9 +96,11 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
       children,
       style,
       backdrop = true,
+      bottomSheet = false,
     },
     ref
   ) => {
+    const { height: vh } = useWindowDimensions();
     const [isShow, setShow] = useState(false);
     const [isHiding, setHiding] = useState(false);
 
@@ -133,46 +140,75 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
       }, 350);
     });
 
-    const containerStyle = useAnimatedStyle(() => ({
-      opacity: showValue.value,
-    }));
+    const [layout, setLayout] = useState<LayoutRectangle>({
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+    });
+    const onLayout = (e: LayoutChangeEvent) => {
+      setLayout(e.nativeEvent.layout);
+    };
 
     const modalStyle = useAnimatedStyle(() => ({
       transform: [{ scale: interpolate(showValue.value, [0, 1], [1.1, 1]) }],
+    }));
+
+    const bottomSheetStyle = useAnimatedStyle(() => ({
+      transform: [
+        {
+          translateY: interpolate(showValue.value, [0, 1], [0, -layout.height]),
+        },
+      ],
     }));
 
     useBackPress(isShow && backpressToClose, hide);
 
     useImperativeHandle(ref, () => ({ show, hide }), [show, hide]);
 
+    const shouldBeUnmounted = !isShow && !isHiding;
+
+    if (shouldBeUnmounted) return null;
+
     const element = (
-      <Animated.View
+      <View
         aria-modal
         accessible
-        style={[styles.wrapper, styles.wrapperDialog, containerStyle]}
+        style={[
+          styles.wrapper,
+          bottomSheet ? styles.wrapperBottomSheet : styles.wrapperDialog,
+        ]}
         pointerEvents={!isShow ? 'none' : 'box-none'}
       >
-        {!backdrop ? null : backdropTouchToClose ? (
-          <Pressable
+        {!backdrop ? null : (
+          <RePressable
+            aria-hidden={!backdropTouchToClose}
+            disabled={!backdropTouchToClose}
             role={'button'}
             accessibilityHint={`Tap to close modal`}
             style={[
               StyleSheet.absoluteFill,
-              { backgroundColor: backdropColor },
+              { backgroundColor: backdropColor, opacity: showValue },
             ]}
             onPress={hide}
           />
-        ) : (
-          <View
-            aria-hidden
-            style={[
-              StyleSheet.absoluteFill,
-              { backgroundColor: backdropColor },
-            ]}
-          />
         )}
-        <Animated.View style={[modalStyle, style]}>{children}</Animated.View>
-      </Animated.View>
+        <Animated.View
+          style={[
+            modalStyle,
+            style,
+            bottomSheet
+              ? [
+                  bottomSheetStyle,
+                  { position: 'absolute', top: vh, width: '100%' },
+                ]
+              : { opacity: showValue },
+          ]}
+          onLayout={onLayout}
+        >
+          {children}
+        </Animated.View>
+      </View>
     );
     if (portal) {
       return <Portal>{element}</Portal>;
@@ -194,4 +230,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  wrapperBottomSheet: {},
 });
