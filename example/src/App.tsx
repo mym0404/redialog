@@ -47,7 +47,7 @@ export default function App() {
       <DialogHandle>
         {({ show, hide, dialog }) => (
           <>
-            <Button title={'Show'} onPress={show} />
+            <Button title={'Show'} onPress={() => show()} />
             <Button title={'Hide'} onPress={hide} />
             <NoParamsDialog dialog={dialog} />
           </>
