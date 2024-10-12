@@ -110,10 +110,10 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
     const timeoutHandle = useRef<any>();
 
     const show = useStableCallback(() => {
+      clearTimeout(timeoutHandle.current);
       setHiding(false);
       setShow(true);
       onShowStarted?.();
-      clearTimeout(timeoutHandle.current);
       showValue.value = withTiming(1, {
         duration: 250,
         reduceMotion: ReduceMotion.Never,
@@ -126,10 +126,10 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
       if (isHiding || !isShow) {
         return;
       }
+      clearTimeout(timeoutHandle.current);
       onHideStarted?.();
       setHiding(true);
       setShow(false);
-      clearTimeout(timeoutHandle.current);
       showValue.value = withTiming(0, {
         duration: 200,
         reduceMotion: ReduceMotion.Never,

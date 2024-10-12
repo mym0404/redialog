@@ -37,7 +37,7 @@ export function useDialogProps(props: any) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
   const show = useStableCallback((params: any) => {
     setParams(params);
-    setTimeout(() => dialogRef.current?.show());
+    dialogRef.current?.show();
   });
   const hide = useStableCallback(() => {
     dialogRef.current?.hide();
