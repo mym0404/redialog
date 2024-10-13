@@ -1,6 +1,6 @@
 {
   "name": "redialog",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "Simple & Easy React Native Dialog using Reanimated",
   "scripts": {
     "dev": "yarn example start",
