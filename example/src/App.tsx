@@ -1,4 +1,4 @@
-import { View, Button, Text } from 'react-native';
+import { View, Button, Text, SafeAreaView } from 'react-native';
 import {
   Dialog,
   useDialog,
@@ -17,12 +17,11 @@ export default function App() {
   ] = useDialog();
 
   return (
-    <View
+    <SafeAreaView
       style={{
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
-        gap: 20,
+        gap: 8,
       }}
     >
       {/* Hook, with params */}
@@ -63,7 +62,25 @@ export default function App() {
           </>
         )}
       </DialogHandle>
-    </View>
+      <View
+        style={{
+          height: 200,
+          backgroundColor: '#11111111',
+          width: '100%',
+          overflow: 'hidden',
+        }}
+      >
+        <DialogHandle>
+          {({ show, hide, dialog }) => (
+            <>
+              <Button title={'Show'} onPress={show} />
+              <Button title={'Hide'} onPress={hide} />
+              <BottomSheetDialog2 dialog={dialog} />
+            </>
+          )}
+        </DialogHandle>
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -122,7 +139,19 @@ const BottomSheetDialog = (props: DialogProps) => {
           })}
         <Text>Hello</Text>
         <Button title={'Add'} onPress={() => setCount((c) => c + 1)} />
+        <Button title={'Remove'} onPress={() => setCount((c) => c - 1)} />
       </View>
     </Dialog>
+  );
+};
+
+const BottomSheetDialog2 = (props: DialogProps) => {
+  const [dialog] = useDialogProps(props);
+  return (
+    <Dialog
+      dialog={dialog}
+      bottomSheet
+      style={{ backgroundColor: 'red', height: 50 }}
+    />
   );
 };
