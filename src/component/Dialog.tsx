@@ -101,6 +101,7 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
     ref
   ) => {
     const { height: vh } = useWindowDimensions();
+    const [wrapperHeight, setWrapperHeight] = useState(vh);
     const [isShow, setShow] = useState(false);
     const [isHiding, setHiding] = useState(false);
 
@@ -179,6 +180,7 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
           bottomSheet ? styles.wrapperBottomSheet : styles.wrapperDialog,
         ]}
         pointerEvents={!isShow ? 'none' : 'box-none'}
+        onLayout={(e) => setWrapperHeight(e.nativeEvent.layout.height)}
       >
         {!backdrop ? null : (
           <RePressable
@@ -200,7 +202,7 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
             bottomSheet
               ? [
                   bottomSheetStyle,
-                  { position: 'absolute', top: vh, width: '100%' },
+                  { position: 'absolute', top: wrapperHeight, width: '100%' },
                 ]
               : { opacity: showValue },
           ]}
