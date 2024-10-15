@@ -156,24 +156,27 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
       transform: [{ scale: interpolate(showValue.value, [0, 1], [1.1, 1]) }],
     }));
 
-    const bottomSheetStyle = useAnimatedStyle(() => ({
-      transform: [
-        {
-          translateY: interpolate(
-            showValue.value,
-            [0, 1],
-            [0, -layout.height],
-            Extrapolation.CLAMP
-          ),
-        },
-      ],
-    }));
+    const bottomSheetStyle = useAnimatedStyle(
+      () => ({
+        transform: [
+          {
+            translateY: interpolate(
+              showValue.value,
+              [0, 1],
+              [0, -layout.height],
+              Extrapolation.CLAMP
+            ),
+          },
+        ],
+      }),
+      [layout.height]
+    );
 
     useBackPress(isShow && backpressToClose, hide);
 
     useImperativeHandle(ref, () => ({ show, hide }), [show, hide]);
 
-    const shouldBeUnmounted = !isShow && !isHiding && !bottomSheet;
+    const shouldBeUnmounted = !isShow && !isHiding;
 
     if (shouldBeUnmounted) return null;
 
