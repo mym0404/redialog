@@ -23,7 +23,6 @@ import {
   type ViewStyle,
   View,
   type LayoutChangeEvent,
-  type LayoutRectangle,
   useWindowDimensions,
 } from 'react-native';
 import { useBackPress } from '../internal/useBackPress';
@@ -142,35 +141,23 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
       }, 350);
     });
 
-    const [layout, setLayout] = useState<LayoutRectangle>({
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
-    });
+    const [contentHeight, setContentHeight] = useState(0);
     const onLayout = (e: LayoutChangeEvent) => {
-      setLayout(e.nativeEvent.layout);
+      setContentHeight(e.nativeEvent.layout.height);
     };
 
     const modalStyle = useAnimatedStyle(() => ({
       transform: [{ scale: interpolate(showValue.value, [0, 1], [1.1, 1]) }],
     }));
 
-    const bottomSheetStyle = useAnimatedStyle(
-      () => ({
-        transform: [
-          {
-            translateY: interpolate(
-              showValue.value,
-              [0, 1],
-              [0, -layout.height],
-              Extrapolation.CLAMP
-            ),
-          },
-        ],
-      }),
-      [layout.height]
-    );
+    const bottomSheetStyle = useAnimatedStyle(() => ({
+      top: interpolate(
+        showValue.value,
+        [0, 1],
+        [wrapperHeight, wrapperHeight - contentHeight],
+        Extrapolation.CLAMP
+      ),
+    }));
 
     useBackPress(isShow && backpressToClose, hide);
 
@@ -209,10 +196,7 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
             modalStyle,
             style,
             bottomSheet
-              ? [
-                  bottomSheetStyle,
-                  { position: 'absolute', top: wrapperHeight, width: '100%' },
-                ]
+              ? [bottomSheetStyle, { position: 'absolute', width: '100%' }]
               : { opacity: showValue },
           ]}
           onLayout={onLayout}
