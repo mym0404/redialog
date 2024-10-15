@@ -149,6 +149,9 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
     });
     const onLayout = (e: LayoutChangeEvent) => {
       setLayout(e.nativeEvent.layout);
+      if (layout.height && layout.height !== e.nativeEvent.layout.height) {
+        showValue.value = withTiming(showValue.value, { duration: 50 });
+      }
     };
 
     const modalStyle = useAnimatedStyle(() => ({

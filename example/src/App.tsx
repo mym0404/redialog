@@ -125,8 +125,10 @@ const BottomSheetDialog = (props: DialogProps) => {
   const [dialog] = useDialogProps(props);
   const [count, setCount] = useState(0);
   return (
-    <Dialog dialog={dialog} bottomSheet style={{ backgroundColor: 'red' }}>
-      <View style={{ padding: 100, backgroundColor: 'transparent' }}>
+    <Dialog dialog={dialog} bottomSheet style={{ backgroundColor: 'gray' }}>
+      <View style={{ backgroundColor: 'transparent' }}>
+        <Button title={'Add'} onPress={() => setCount((c) => c + 1)} />
+        <Button title={'Remove'} onPress={() => setCount((c) => c - 1)} />
         {Array(count)
           .fill(0)
           .map((_, i) => {
@@ -138,8 +140,6 @@ const BottomSheetDialog = (props: DialogProps) => {
             );
           })}
         <Text>Hello</Text>
-        <Button title={'Add'} onPress={() => setCount((c) => c + 1)} />
-        <Button title={'Remove'} onPress={() => setCount((c) => c - 1)} />
       </View>
     </Dialog>
   );
