@@ -168,7 +168,7 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
 
     const shouldBeUnmounted = !isShow && !isHiding;
 
-    if (shouldBeUnmounted) return null;
+    if (shouldBeUnmounted && !bottomSheet) return null;
 
     const element = (
       <View
