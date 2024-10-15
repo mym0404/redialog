@@ -99,6 +99,8 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
     },
     ref
   ) => {
+    // const { height: vh } = useWindowDimensions();
+    // const [wrapperHeight, setWrapperHeight] = useState(vh);
     const [isShow, setShow] = useState(false);
     const [isHiding, setHiding] = useState(false);
 
@@ -155,7 +157,7 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
     const bottomSheetStyle = useAnimatedStyle(() => ({
       transform: [
         {
-          translateY: interpolate(showValue.value, [0, 1], [0, -layout.height]),
+          translateY: interpolate(showValue.value, [0, 1], [layout.height, 0]),
         },
       ],
     }));
@@ -173,10 +175,11 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
         aria-modal
         accessible
         style={[
-          styles.wrapper,
+          StyleSheet.absoluteFill,
           bottomSheet ? styles.wrapperBottomSheet : styles.wrapperDialog,
         ]}
         pointerEvents={!isShow ? 'none' : 'box-none'}
+        // onLayout={(e) => setWrapperHeight(e.nativeEvent.layout.height)}
       >
         {!backdrop ? null : (
           <RePressable
@@ -198,11 +201,7 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
             bottomSheet
               ? [
                   bottomSheetStyle,
-                  {
-                    position: 'absolute',
-                    bottom: -layout.height,
-                    width: '100%',
-                  },
+                  { position: 'absolute', bottom: 0, width: '100%' },
                 ]
               : { opacity: showValue },
           ]}
@@ -221,13 +220,6 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
 );
 
 const styles = StyleSheet.create({
-  wrapper: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
   wrapperDialog: {
     alignItems: 'center',
     justifyContent: 'center',
