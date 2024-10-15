@@ -151,12 +151,16 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
     }));
 
     const bottomSheetStyle = useAnimatedStyle(() => ({
-      top: interpolate(
-        showValue.value,
-        [0, 1],
-        [0, -contentHeight],
-        Extrapolation.CLAMP
-      ),
+      transform: [
+        {
+          translateY: interpolate(
+            showValue.value,
+            [0, 1],
+            [0, -contentHeight],
+            Extrapolation.CLAMP
+          ),
+        },
+      ],
     }));
 
     useBackPress(isShow && backpressToClose, hide);
