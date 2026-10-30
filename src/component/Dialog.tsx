@@ -42,6 +42,7 @@ export type DialogProps<T = NoobSymbol> = PropsWithChildren<{
   backpressToClose?: boolean;
   backdropTouchToClose?: boolean;
   portal?: boolean;
+  portalId?: string;
   backdropColor?: string;
   showAnimationValue?: SharedValue<number>;
   style?: StyleProp<ViewStyle>;
@@ -91,6 +92,7 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
       backpressToClose = true,
       backdropTouchToClose = true,
       portal = false,
+      portalId,
       backdropColor = '#111a',
       showAnimationValue,
       children,
@@ -214,8 +216,8 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
         </Animated.View>
       </View>
     );
-    if (portal) {
-      return <Portal>{element}</Portal>;
+    if (portal || portalId !== undefined) {
+      return <Portal portalId={portalId}>{element}</Portal>;
     } else {
       return element;
     }

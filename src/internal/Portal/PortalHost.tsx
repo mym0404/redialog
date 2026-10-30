@@ -1,10 +1,12 @@
 import * as React from 'react';
 
 import { PortalManager } from './PortalManager';
+import { registerPortalHost } from './PortalRegistry';
 
 type Props = {
   children: React.ReactNode;
   testID?: string;
+  portalId?: string;
 };
 
 type Operation =
@@ -18,7 +20,9 @@ export type PortalMethods = {
   unmount: (key: number) => void;
 };
 
-export const PortalContext = React.createContext<PortalMethods>(null as any);
+export const PortalContext = React.createContext<PortalMethods | undefined>(
+  undefined
+);
 
 export class PortalHost extends React.Component<Props> {
   static displayName = 'Portal.Host';
@@ -26,6 +30,7 @@ export class PortalHost extends React.Component<Props> {
   private nextKey = 0;
   private queue: Operation[] = [];
   private manager: PortalManager | null | undefined;
+  private unregister?: () => void;
 
   override componentDidMount() {
     const manager = this.manager;
@@ -47,7 +52,27 @@ export class PortalHost extends React.Component<Props> {
         }
       }
     }
+
+    this.register();
   }
+
+  override componentDidUpdate(previousProps: Props) {
+    if (previousProps.portalId !== this.props.portalId) {
+      this.unregister?.();
+      this.unregister = undefined;
+      this.register();
+    }
+  }
+
+  override componentWillUnmount() {
+    this.unregister?.();
+  }
+
+  private register = () => {
+    if (this.props.portalId !== undefined) {
+      this.unregister = registerPortalHost(this.props.portalId, this.methods);
+    }
+  };
 
   private setManager = (manager: PortalManager | undefined | null) => {
     this.manager = manager;
@@ -90,15 +115,15 @@ export class PortalHost extends React.Component<Props> {
     }
   };
 
+  private methods: PortalMethods = {
+    mount: this.mount,
+    update: this.update,
+    unmount: this.unmount,
+  };
+
   override render() {
     return (
-      <PortalContext.Provider
-        value={{
-          mount: this.mount,
-          update: this.update,
-          unmount: this.unmount,
-        }}
-      >
+      <PortalContext.Provider value={this.methods}>
         {this.props.children}
         <PortalManager ref={this.setManager} />
       </PortalContext.Provider>

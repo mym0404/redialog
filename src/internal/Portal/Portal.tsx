@@ -1,28 +1,33 @@
-import React from 'react';
+import { type ReactNode, useContext, useSyncExternalStore } from 'react';
 
 import { PortalConsumer } from './PortalConsumer';
-import { type PortalMethods, PortalHost, PortalContext } from './PortalHost';
+import { PortalHost, PortalContext } from './PortalHost';
+import { getPortalHost, subscribeToPortalHosts } from './PortalRegistry';
 
 type Props = {
-  children: React.ReactNode;
+  children: ReactNode;
+  portalId?: string;
 };
 
-class Portal extends React.Component<Props> {
-  static Host = PortalHost;
+function Portal({ children, portalId }: Props) {
+  const nearestManager = useContext(PortalContext);
+  const namedManager = useSyncExternalStore(
+    subscribeToPortalHosts,
+    () => (portalId === undefined ? undefined : getPortalHost(portalId)),
+    () => undefined
+  );
+  const manager = portalId === undefined ? nearestManager : namedManager;
 
-  override render() {
-    const { children } = this.props;
-
-    return (
-      <PortalContext.Consumer>
-        {(manager) => (
-          <PortalConsumer manager={manager as PortalMethods}>
-            {children}
-          </PortalConsumer>
-        )}
-      </PortalContext.Consumer>
-    );
+  if (!manager) {
+    if (portalId === undefined) {
+      throw new Error("Wrapped PortalHost doesn't exist");
+    }
+    return null;
   }
+
+  return <PortalConsumer manager={manager}>{children}</PortalConsumer>;
 }
+
+Portal.Host = PortalHost;
 
 export { Portal };

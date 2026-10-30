@@ -101,6 +101,44 @@ const BottomSheetDialog = (props: DialogProps) => {
 
 ```
 
+## Targeting a PortalHost
+
+Give each named `PortalHost` a unique `portalId`, then pass that ID to `Portal` or `Dialog` to render its content in that host. Named hosts can be ancestors or siblings of the caller.
+
+```tsx
+import { Button, Text, View } from 'react-native';
+import { Dialog, Portal, PortalHost, useDialog } from 'redialog';
+
+const ROOT_PORTAL_ID = 'root';
+
+function App() {
+  const [dialog, { show }] = useDialog();
+
+  return (
+    <View style={{ flex: 1 }}>
+      <PortalHost portalId={ROOT_PORTAL_ID}>
+        <PortalHost portalId="screen">
+          <Button title="Open dialog" onPress={show} />
+          <Dialog dialog={{ dialog }} portalId={ROOT_PORTAL_ID}>
+            <Text>This dialog renders in the root host.</Text>
+          </Dialog>
+          <Portal portalId={ROOT_PORTAL_ID}>
+            <Text>This content also renders in the root host.</Text>
+          </Portal>
+        </PortalHost>
+      </PortalHost>
+    </View>
+  );
+}
+```
+
+- Without `portalId`, `Portal` uses the nearest ancestor `PortalHost`. `Dialog` uses that host when `portal` is `true`; otherwise it renders inline.
+- Setting `Dialog.portalId` enables portal rendering without requiring `portal={true}`.
+- Named IDs are unique across mounted hosts in the same JavaScript runtime. Duplicate IDs throw an error. `Portal.Host` accepts the same props as `PortalHost`.
+- If a named host is absent, its portals render nothing until it mounts. They do not fall back to an ancestor host. Removing the host also removes its content; mounting it again restores the active portals.
+- Changing `portalId` moves the content to the new host and remounts its children, resetting their local state.
+- A host renders portal content at its own position in the native view tree. Choose its surrounding layout to cover the intended area; targeting a host does not create a native modal or an accessibility focus trap.
+
 ## Full Example
 
 ```tsx

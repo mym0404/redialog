@@ -8,33 +8,35 @@ type Props = {
 };
 
 export class PortalConsumer extends React.Component<Props> {
-  override async componentDidMount() {
-    this.checkManager();
-
-    await Promise.resolve();
-
-    this.key = this.props.manager.mount(this.props.children);
+  override componentDidMount() {
+    this.isMounted = true;
+    Promise.resolve().then(() => {
+      if (this.isMounted && this.key === undefined) {
+        this.key = this.props.manager.mount(this.props.children);
+      }
+    });
   }
 
-  override componentDidUpdate() {
-    this.checkManager();
-
-    this.props.manager.update(this.key, this.props.children);
+  override componentDidUpdate(previousProps: Props) {
+    if (this.key === undefined) return;
+    if (previousProps.manager !== this.props.manager) {
+      previousProps.manager.unmount(this.key);
+      this.key = this.props.manager.mount(this.props.children);
+    } else {
+      this.props.manager.update(this.key, this.props.children);
+    }
   }
 
   override componentWillUnmount() {
-    this.checkManager();
-
-    this.props.manager.unmount(this.key);
-  }
-
-  private key: any;
-
-  private checkManager() {
-    if (!this.props.manager) {
-      throw new Error("Wrapped PortalHost doesn't exist");
+    this.isMounted = false;
+    if (this.key !== undefined) {
+      this.props.manager.unmount(this.key);
+      this.key = undefined;
     }
   }
+
+  private key?: number;
+  private isMounted = false;
 
   override render() {
     return null;
