@@ -20,6 +20,9 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
+      - name: Check formatting
+        run: pnpm format:check
+
       - name: Lint files
         run: pnpm lint
 

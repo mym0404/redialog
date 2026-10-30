@@ -7,11 +7,14 @@
     "example": "pnpm --filter redialog-example",
     "test": "jest",
     "typecheck": "tsc",
-    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "lint": "oxlint .",
     "clean": "del-cli lib",
     "build": "bob build",
     "release": "pnpm build && release-it",
-    "prepack": "pnpm build"
+    "prepack": "pnpm build",
+    "lint:fix": "oxlint --fix .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check ."
   },
   "source": "./src/index.tsx",
   "main": "./lib/commonjs/index.js",
@@ -71,7 +74,6 @@
     "@commitlint/config-conventional": "^21.2.4",
     "@evilmartians/lefthook": "^2.2.2",
     "@react-native/babel-preset": "^0.88.1",
-    "@react-native/eslint-config": "^0.88.1",
     "@react-native/jest-preset": "0.88.1",
     "@react-native/metro-config": "^0.88.1",
     "@release-it/conventional-changelog": "^12.0.2",
@@ -80,11 +82,9 @@
     "@types/react": "^19.3.0",
     "commitlint": "^21.2.4",
     "del-cli": "^8.0.1",
-    "eslint": "^9.39.5",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.7",
     "jest": "^30.5.2",
-    "prettier": "^3.9.10",
+    "oxfmt": "^0.75.0",
+    "oxlint": "^1.90.0",
     "react": "19.3.0",
     "react-native": "0.88.1",
     "react-native-builder-bob": "^0.44.1",
@@ -132,13 +132,6 @@
         "preset": "angular"
       }
     }
-  },
-  "prettier": {
-    "quoteProps": "consistent",
-    "singleQuote": true,
-    "tabWidth": 2,
-    "trailingComma": "es5",
-    "useTabs": false
   },
   "react-native-builder-bob": {
     "source": "src",

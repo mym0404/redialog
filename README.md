@@ -48,21 +48,15 @@ export default function App() {
       <NoParamsDialog dialog={noParamsDialog} />
       {/* Component, with params */}
       <DialogHandle<typeof ParamsDialog>>
-        {({ show, hide, dialog }) => (
-          <ParamsDialog dialog={dialog} />
-        )}
+        {({ show, hide, dialog }) => <ParamsDialog dialog={dialog} />}
       </DialogHandle>
       {/* Component, without params */}
       <DialogHandle>
-        {({ show, hide, dialog }) => (
-          <NoParamsDialog dialog={dialog} />
-        )}
+        {({ show, hide, dialog }) => <NoParamsDialog dialog={dialog} />}
       </DialogHandle>
       {/* BottomSheet */}
       <DialogHandle>
-        {({ show, hide, dialog }) => (
-          <BottomSheetDialog dialog={dialog} />
-        )}
+        {({ show, hide, dialog }) => <BottomSheetDialog dialog={dialog} />}
       </DialogHandle>
     </View>
   );
@@ -74,31 +68,22 @@ type ParamsDialogParams = {
 
 const ParamsDialog = (props: DialogProps<ParamsDialogParams>) => {
   const [dialog] = useDialogProps(props);
-  return (
-    <Dialog dialog={dialog}>
-       ...
-    </Dialog>
-  );
+  return <Dialog dialog={dialog}>...</Dialog>;
 };
 
 const NoParamsDialog = (props: DialogProps) => {
   const [dialog] = useDialogProps(props);
-  return (
-    <Dialog dialog={dialog}>
-       ...
-    </Dialog>
-  );
+  return <Dialog dialog={dialog}>...</Dialog>;
 };
 
 const BottomSheetDialog = (props: DialogProps) => {
   const [dialog] = useDialogProps(props);
   return (
     <Dialog dialog={dialog} bottomSheet>
-       ...
+      ...
     </Dialog>
   );
 };
-
 ```
 
 ## Targeting a PortalHost
@@ -270,7 +255,6 @@ const BottomSheetDialog = (props: DialogProps) => {
     </Dialog>
   );
 };
-
 ```
 
 ## Contributing
