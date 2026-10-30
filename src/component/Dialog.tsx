@@ -108,7 +108,9 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
     const _showValue = useSharedValue(0);
     const showValue = showAnimationValue || _showValue;
 
-    const timeoutHandle = useRef<any>();
+    const timeoutHandle = useRef<ReturnType<typeof setTimeout> | undefined>(
+      undefined
+    );
 
     const show = useStableCallback(() => {
       clearTimeout(timeoutHandle.current);

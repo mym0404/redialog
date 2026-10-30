@@ -15,8 +15,12 @@ Additionally, it fully supports TypeScript and ensures type safety by distinguis
 ## Installation
 
 ```sh
-yarn add redialog react-native-reanimated
+pnpm add redialog react-native-reanimated@4 react-native-worklets
 ```
+
+Version 1 requires Reanimated 4 and the React Native New Architecture. Choose React Native and Worklets versions supported by your installed Reanimated version using its [compatibility table](https://docs.swmansion.com/react-native-reanimated/docs/guides/compatibility/). Reanimated 3 and the Legacy Architecture are no longer supported.
+
+Add `react-native-worklets/plugin` last in your app's Babel plugins, then rebuild the native app. See the [Reanimated installation guide](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started/) for platform-specific setup. Expo apps should use `pnpm exec expo install react-native-reanimated react-native-worklets` to select versions compatible with their SDK; the example uses Expo SDK 58.
 
 ## Usage
 

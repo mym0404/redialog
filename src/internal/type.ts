@@ -6,5 +6,5 @@ export type ExtractShowFromComponent<
   }>,
 > = NonNullable<NonNullable<ComponentProps<T>['dialog']>['current']>['show'];
 
-const _NoobSymbol = Symbol('noob');
+export declare const _NoobSymbol: unique symbol;
 export type NoobSymbol = typeof _NoobSymbol;

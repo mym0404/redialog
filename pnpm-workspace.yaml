@@ -1,0 +1,6 @@
+packages:
+  - example
+allowBuilds:
+  '@evilmartians/lefthook': true
+  '@parcel/watcher': true
+  unrs-resolver: true
