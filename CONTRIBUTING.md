@@ -92,13 +92,34 @@ Our pre-commit hooks run Oxlint, Oxfmt, and TypeScript checks.
 
 ### Publishing to npm
 
-We use [release-it](https://github.com/release-it/release-it) to make it easier to publish new versions. It handles common tasks like bumping version based on semver, creating tags and releases etc.
+We use [Changesets](https://changesets.dev/) to record release notes, update package versions, and publish to npm. Only `redialog` is released; the example app is private and is not versioned or published.
 
-Authenticate with npm and GitHub, then run the following from a clean working tree. Pass `major`, `minor`, or `patch` to choose the version increment:
+For a change to the published library, add a changeset and commit the generated Markdown file with the code:
 
 ```sh
-pnpm release
+pnpm changeset
 ```
+
+Select `redialog`, choose `patch`, `minor`, or `major`, and describe the change for library users. Tooling-only changes do not require a changeset.
+
+After a push to `main` passes CI, GitHub Actions creates or updates one version PR for the pending changesets. The PR updates `package.json`, `CHANGELOG.md`, and the lockfile. CI also runs on the generated release branch through an explicit workflow dispatch.
+
+Review and merge the version PR to publish. The next successful CI run on `main` publishes the new version to npm, pushes the package tag, and creates a GitHub release. Publishing uses npm trusted publishing (OIDC), so no `NPM_TOKEN` secret is needed. Changes without pending changesets or an unpublished version do not create a release.
+
+The repository must allow GitHub Actions to create pull requests. On npm, the `redialog` trusted publisher must allow publishing from GitHub repository `mym0404/redialog`, workflow `ci.yml`, with no environment restriction. Keep the workflow filename and npm trust configuration in sync.
+
+To inspect pending releases locally:
+
+```sh
+pnpm changeset status
+pnpm format:check
+pnpm lint
+pnpm typecheck
+pnpm test --runInBand
+pnpm build
+```
+
+`pnpm version-packages` and `pnpm release` are the commands used by automation. The first applies pending version changes; the second builds and publishes versions that are not yet on npm. Git tags use package names, such as `redialog@1.1.0`.
 
 ### Scripts
 
@@ -111,6 +132,9 @@ The `package.json` file contains various scripts for common tasks:
 - `pnpm format`: format files with Oxfmt.
 - `pnpm format:check`: check formatting without changing files.
 - `pnpm test`: run unit tests with Jest.
+- `pnpm changeset`: add a release note and choose the version increment.
+- `pnpm version-packages`: apply changesets and update the lockfile.
+- `pnpm release`: build and publish unreleased package versions to npm.
 - `pnpm example start`: start the Metro server for the example app.
 - `pnpm example android`: run the example app on Android.
 - `pnpm example ios`: run the example app on iOS.
