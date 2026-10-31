@@ -15,12 +15,12 @@ const SIBLING = 'sibling';
 const CONTENT = 'Portal content';
 
 function Hosts({
-  portalId,
+  hostId,
   hasSibling = true,
   siblingId = SIBLING,
   children = CONTENT,
 }: {
-  portalId?: string;
+  hostId?: string;
   hasSibling?: boolean;
   siblingId?: string;
   children?: string;
@@ -28,10 +28,10 @@ function Hosts({
   return (
     <>
       <View testID={OUTER}>
-        <PortalHost portalId={OUTER}>
+        <PortalHost hostId={OUTER}>
           <View testID={INNER}>
-            <PortalHost portalId={INNER}>
-              <Portal portalId={portalId}>
+            <PortalHost hostId={INNER}>
+              <Portal hostId={hostId}>
                 <Text>{children}</Text>
               </Portal>
             </PortalHost>
@@ -40,14 +40,14 @@ function Hosts({
       </View>
       {hasSibling && (
         <View testID={SIBLING}>
-          <PortalHost portalId={siblingId}>{null}</PortalHost>
+          <PortalHost hostId={siblingId}>{null}</PortalHost>
         </View>
       )}
     </>
   );
 }
 
-it('uses the nearest host when portalId is omitted', async () => {
+it('uses the nearest host when hostId is omitted', async () => {
   await render(<Hosts />);
 
   expect(
@@ -57,7 +57,7 @@ it('uses the nearest host when portalId is omitted', async () => {
 });
 
 it('targets an outer host instead of the nearest host', async () => {
-  await render(<Hosts portalId={OUTER} />);
+  await render(<Hosts hostId={OUTER} />);
 
   expect(
     within(screen.getByTestId(OUTER)).getByText(CONTENT)
@@ -66,7 +66,7 @@ it('targets an outer host instead of the nearest host', async () => {
 });
 
 it('targets a sibling host mounted after the portal', async () => {
-  await render(<Hosts portalId={SIBLING} />);
+  await render(<Hosts hostId={SIBLING} />);
 
   expect(
     within(screen.getByTestId(SIBLING)).getByText(CONTENT)
@@ -74,9 +74,9 @@ it('targets a sibling host mounted after the portal', async () => {
   expect(within(screen.getByTestId(OUTER)).queryByText(CONTENT)).toBeNull();
 });
 
-it('moves content when portalId changes and can return to the nearest host', async () => {
-  await render(<Hosts portalId={OUTER} />);
-  await screen.rerender(<Hosts portalId={SIBLING} />);
+it('moves content when hostId changes and can return to the nearest host', async () => {
+  await render(<Hosts hostId={OUTER} />);
+  await screen.rerender(<Hosts hostId={SIBLING} />);
 
   expect(within(screen.getByTestId(OUTER)).queryByText(CONTENT)).toBeNull();
   expect(
@@ -93,26 +93,26 @@ it('moves content when portalId changes and can return to the nearest host', asy
 });
 
 it('waits for a named host without falling back, including after host removal', async () => {
-  await render(<Hosts portalId={SIBLING} hasSibling={false} />);
+  await render(<Hosts hostId={SIBLING} hasSibling={false} />);
   expect(screen.queryByText(CONTENT)).toBeNull();
 
-  await screen.rerender(<Hosts portalId={SIBLING} />);
+  await screen.rerender(<Hosts hostId={SIBLING} />);
   expect(screen.getByText(CONTENT)).toBeOnTheScreen();
 
-  await screen.rerender(<Hosts portalId={SIBLING} hasSibling={false} />);
+  await screen.rerender(<Hosts hostId={SIBLING} hasSibling={false} />);
   expect(screen.queryByText(CONTENT)).toBeNull();
 
-  await screen.rerender(<Hosts portalId={SIBLING} />);
+  await screen.rerender(<Hosts hostId={SIBLING} />);
   expect(screen.getAllByText(CONTENT)).toHaveLength(1);
 });
 
 it('updates host registration when the host ID changes', async () => {
   const renamedId = 'renamed';
-  await render(<Hosts portalId={SIBLING} />);
-  await screen.rerender(<Hosts portalId={SIBLING} siblingId={renamedId} />);
+  await render(<Hosts hostId={SIBLING} />);
+  await screen.rerender(<Hosts hostId={SIBLING} siblingId={renamedId} />);
   expect(screen.queryByText(CONTENT)).toBeNull();
 
-  await screen.rerender(<Hosts portalId={renamedId} siblingId={renamedId} />);
+  await screen.rerender(<Hosts hostId={renamedId} siblingId={renamedId} />);
   expect(
     within(screen.getByTestId(SIBLING)).getByText(CONTENT)
   ).toBeOnTheScreen();
@@ -120,8 +120,8 @@ it('updates host registration when the host ID changes', async () => {
 
 it('updates portal children without leaving stale content', async () => {
   const updatedContent = 'Updated content';
-  await render(<Hosts portalId={SIBLING} />);
-  await screen.rerender(<Hosts portalId={SIBLING}>{updatedContent}</Hosts>);
+  await render(<Hosts hostId={SIBLING} />);
+  await screen.rerender(<Hosts hostId={SIBLING}>{updatedContent}</Hosts>);
 
   expect(screen.queryByText(CONTENT)).toBeNull();
   expect(
@@ -129,7 +129,7 @@ it('updates portal children without leaving stale content', async () => {
   ).toBeOnTheScreen();
 });
 
-it('keeps child state when its host rerenders', async () => {
+it('keeps child state when its host with a generated ID rerenders', async () => {
   const increment = 'Increment';
   function Counter() {
     const [count, setCount] = useState(0);
@@ -143,7 +143,7 @@ it('keeps child state when its host rerenders', async () => {
 
   function App({ label }: { label: string }) {
     return (
-      <PortalHost portalId={OUTER}>
+      <PortalHost>
         <Text>{label}</Text>
         <Portal>
           <Counter />
@@ -161,13 +161,13 @@ it('keeps child state when its host rerenders', async () => {
 it('does not duplicate portals under StrictMode and releases IDs on unmount', async () => {
   await render(
     <StrictMode>
-      <Hosts portalId={SIBLING} />
+      <Hosts hostId={SIBLING} />
     </StrictMode>
   );
   expect(screen.getAllByText(CONTENT)).toHaveLength(1);
   await screen.unmount();
 
-  await render(<Hosts portalId={SIBLING} />);
+  await render(<Hosts hostId={SIBLING} />);
   expect(screen.getAllByText(CONTENT)).toHaveLength(1);
 });
 
@@ -175,24 +175,24 @@ it('rejects duplicate host IDs', async () => {
   await expect(
     render(
       <>
-        <PortalHost portalId={OUTER}>{null}</PortalHost>
-        <PortalHost portalId={OUTER}>{null}</PortalHost>
+        <PortalHost hostId={OUTER}>{null}</PortalHost>
+        <PortalHost hostId={OUTER}>{null}</PortalHost>
       </>
     )
-  ).rejects.toThrow(`A PortalHost with portalId "${OUTER}" already exists`);
+  ).rejects.toThrow(`A PortalHost with hostId "${OUTER}" already exists`);
 });
 
 it('removes only the unmounted portal from a shared host', async () => {
   const otherContent = 'Other portal';
   function App({ hasFirst }: { hasFirst: boolean }) {
     return (
-      <PortalHost portalId={OUTER}>
+      <PortalHost hostId={OUTER}>
         {hasFirst && (
-          <Portal portalId={OUTER}>
+          <Portal hostId={OUTER}>
             <Text>{CONTENT}</Text>
           </Portal>
         )}
-        <Portal portalId={OUTER}>
+        <Portal hostId={OUTER}>
           <Text>{otherContent}</Text>
         </Portal>
       </PortalHost>
@@ -228,11 +228,11 @@ it('does not mount stale content if the portal unmounts before its deferred moun
 it('supports named portals without an ancestor host', async () => {
   await render(
     <>
-      <Portal portalId={OUTER}>
+      <Portal hostId={OUTER}>
         <Text>{CONTENT}</Text>
       </Portal>
       <View testID={OUTER}>
-        <Portal.Host portalId={OUTER}>{null}</Portal.Host>
+        <Portal.Host hostId={OUTER}>{null}</Portal.Host>
       </View>
     </>
   );

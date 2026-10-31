@@ -6,20 +6,20 @@ import { getPortalHost, subscribeToPortalHosts } from './PortalRegistry';
 
 type Props = {
   children: ReactNode;
-  portalId?: string;
+  hostId?: string;
 };
 
-function Portal({ children, portalId }: Props) {
+function Portal({ children, hostId }: Props) {
   const nearestManager = useContext(PortalContext);
   const namedManager = useSyncExternalStore(
     subscribeToPortalHosts,
-    () => (portalId === undefined ? undefined : getPortalHost(portalId)),
+    () => (hostId === undefined ? undefined : getPortalHost(hostId)),
     () => undefined
   );
-  const manager = portalId === undefined ? nearestManager : namedManager;
+  const manager = hostId === undefined ? nearestManager : namedManager;
 
   if (!manager) {
-    if (portalId === undefined) {
+    if (hostId === undefined) {
       throw new Error("Wrapped PortalHost doesn't exist");
     }
     return null;

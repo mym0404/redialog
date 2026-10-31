@@ -7,8 +7,10 @@ import {
   DialogHandle,
 } from 'redialog';
 import { useState } from 'react';
+import { AccessibilityExample } from './AccessibilityExample';
 
 export default function App() {
+  const [isAccessibilityExample, setAccessibilityExample] = useState(false);
   const [paramsDialog, { show: showParamsDialog, hide: hideParamsDialog }] =
     useDialog<typeof ParamsDialog>();
   const [
@@ -16,14 +18,25 @@ export default function App() {
     { show: showNoParamsDialog, hide: hideNoParamsDialog },
   ] = useDialog();
 
+  if (isAccessibilityExample) {
+    return (
+      <AccessibilityExample onBack={() => setAccessibilityExample(false)} />
+    );
+  }
+
   return (
     <SafeAreaView
       style={{
         flex: 1,
         alignItems: 'center',
+        paddingTop: 40,
         gap: 8,
       }}
     >
+      <Button
+        title="Accessibility example"
+        onPress={() => setAccessibilityExample(true)}
+      />
       {/* Hook, with params */}
       <Button title={'Show'} onPress={() => showParamsDialog({ data: 1 })} />
       <Button title={'Hide'} onPress={hideParamsDialog} />

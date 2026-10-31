@@ -3,7 +3,7 @@ import type { PortalMethods } from './PortalHost';
 const hosts = new Map<string, PortalMethods>();
 const listeners = new Set<() => void>();
 
-export const getPortalHost = (portalId: string) => hosts.get(portalId);
+export const getPortalHost = (hostId: string) => hosts.get(hostId);
 
 export const subscribeToPortalHosts = (listener: () => void) => {
   listeners.add(listener);
@@ -12,19 +12,16 @@ export const subscribeToPortalHosts = (listener: () => void) => {
   };
 };
 
-export const registerPortalHost = (
-  portalId: string,
-  manager: PortalMethods
-) => {
-  if (hosts.has(portalId)) {
-    throw new Error(`A PortalHost with portalId "${portalId}" already exists`);
+export const registerPortalHost = (hostId: string, manager: PortalMethods) => {
+  if (hosts.has(hostId)) {
+    throw new Error(`A PortalHost with hostId "${hostId}" already exists`);
   }
 
-  hosts.set(portalId, manager);
+  hosts.set(hostId, manager);
   listeners.forEach((listener) => listener());
 
   return () => {
-    hosts.delete(portalId);
+    hosts.delete(hostId);
     listeners.forEach((listener) => listener());
   };
 };
