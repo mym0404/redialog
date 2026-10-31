@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { useActiveDialog } from '../DialogAccessibility';
 
 import { PortalManager } from './PortalManager';
 import { registerPortalHost } from './PortalRegistry';
@@ -6,7 +8,7 @@ import { registerPortalHost } from './PortalRegistry';
 type Props = {
   children: React.ReactNode;
   testID?: string;
-  portalId?: string;
+  hostId?: string;
 };
 
 type Operation =
@@ -15,6 +17,7 @@ type Operation =
   | { type: 'unmount'; key: number };
 
 export type PortalMethods = {
+  getDepth: () => number;
   mount: (children: React.ReactNode) => number;
   update: (key: number, children: React.ReactNode) => void;
   unmount: (key: number) => void;
@@ -24,7 +27,38 @@ export const PortalContext = React.createContext<PortalMethods | undefined>(
   undefined
 );
 
-export class PortalHost extends React.Component<Props> {
+export function PortalHost(props: Props) {
+  const parent = React.useContext(PortalContext);
+  const generatedHostId = React.useId();
+  const hostId = props.hostId ?? generatedHostId;
+  const depth = (parent?.getDepth() ?? -1) + 1;
+  const isActive = useActiveDialog(
+    (active) => active?.layer?.hostId === hostId
+  );
+  const shouldHide = useActiveDialog(
+    (active) =>
+      active?.layer?.hostId === hostId ||
+      (depth === 0 && active?.layer?.depth === 0)
+  );
+  return (
+    <PortalHostImplementation
+      {...props}
+      hostId={hostId}
+      depth={depth}
+      isActive={isActive}
+      shouldHide={shouldHide}
+    />
+  );
+}
+
+class PortalHostImplementation extends React.Component<
+  Props & {
+    hostId: string;
+    depth: number;
+    isActive: boolean;
+    shouldHide: boolean;
+  }
+> {
   static displayName = 'Portal.Host';
 
   private nextKey = 0;
@@ -57,7 +91,7 @@ export class PortalHost extends React.Component<Props> {
   }
 
   override componentDidUpdate(previousProps: Props) {
-    if (previousProps.portalId !== this.props.portalId) {
+    if (previousProps.hostId !== this.props.hostId) {
       this.unregister?.();
       this.unregister = undefined;
       this.register();
@@ -69,9 +103,7 @@ export class PortalHost extends React.Component<Props> {
   }
 
   private register = () => {
-    if (this.props.portalId !== undefined) {
-      this.unregister = registerPortalHost(this.props.portalId, this.methods);
-    }
+    this.unregister = registerPortalHost(this.props.hostId, this.methods);
   };
 
   private setManager = (manager: PortalManager | undefined | null) => {
@@ -116,17 +148,37 @@ export class PortalHost extends React.Component<Props> {
   };
 
   private methods: PortalMethods = {
+    getDepth: () => this.props.depth,
     mount: this.mount,
     update: this.update,
     unmount: this.unmount,
   };
 
   override render() {
+    const { hostId, depth, isActive, shouldHide } = this.props;
+
     return (
       <PortalContext.Provider value={this.methods}>
-        {this.props.children}
-        <PortalManager ref={this.setManager} />
+        <View
+          testID={this.props.testID}
+          collapsable={false}
+          aria-hidden={shouldHide}
+          pointerEvents={shouldHide ? 'none' : 'box-none'}
+          style={styles.content}
+        >
+          {this.props.children}
+        </View>
+        <View
+          pointerEvents="box-none"
+          style={[StyleSheet.absoluteFill, { zIndex: isActive ? 2 : 1 }]}
+        >
+          <PortalManager ref={this.setManager} hostId={hostId} depth={depth} />
+        </View>
       </PortalContext.Provider>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  content: { flex: 1 },
+});

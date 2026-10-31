@@ -88,26 +88,26 @@ const BottomSheetDialog = (props: DialogProps) => {
 
 ## Targeting a PortalHost
 
-Give each named `PortalHost` a unique `portalId`, then pass that ID to `Portal` or `Dialog` to render its content in that host. Named hosts can be ancestors or siblings of the caller.
+Every `PortalHost` has a `hostId`. If omitted, it generates a stable ID with React's `useId()`. To target a host explicitly, pass the same `hostId` to `PortalHost` and `Portal` or `Dialog`. Target hosts can be ancestors or siblings of the caller.
 
 ```tsx
 import { Button, Text, View } from 'react-native';
 import { Dialog, Portal, PortalHost, useDialog } from 'redialog';
 
-const ROOT_PORTAL_ID = 'root';
+const ROOT_HOST_ID = 'root';
 
 function App() {
   const [dialog, { show }] = useDialog();
 
   return (
     <View style={{ flex: 1 }}>
-      <PortalHost portalId={ROOT_PORTAL_ID}>
-        <PortalHost portalId="screen">
+      <PortalHost hostId={ROOT_HOST_ID}>
+        <PortalHost hostId="screen">
           <Button title="Open dialog" onPress={show} />
-          <Dialog dialog={{ dialog }} portalId={ROOT_PORTAL_ID}>
+          <Dialog dialog={{ dialog }} hostId={ROOT_HOST_ID}>
             <Text>This dialog renders in the root host.</Text>
           </Dialog>
-          <Portal portalId={ROOT_PORTAL_ID}>
+          <Portal hostId={ROOT_HOST_ID}>
             <Text>This content also renders in the root host.</Text>
           </Portal>
         </PortalHost>
@@ -117,12 +117,61 @@ function App() {
 }
 ```
 
-- Without `portalId`, `Portal` uses the nearest ancestor `PortalHost`. `Dialog` uses that host when `portal` is `true`; otherwise it renders inline.
-- Setting `Dialog.portalId` enables portal rendering without requiring `portal={true}`.
-- Named IDs are unique across mounted hosts in the same JavaScript runtime. Duplicate IDs throw an error. `Portal.Host` accepts the same props as `PortalHost`.
+- Without `hostId`, `Portal` uses the nearest ancestor `PortalHost`. `Dialog` uses that host when `portal` is `true`; otherwise it renders inline.
+- Setting `Dialog.hostId` enables portal rendering without requiring `portal={true}`.
+- Host IDs are unique across mounted hosts in the same JavaScript runtime. Duplicate IDs throw an error. `Portal.Host` accepts the same props as `PortalHost`.
 - If a named host is absent, its portals render nothing until it mounts. They do not fall back to an ancestor host. Removing the host also removes its content; mounting it again restores the active portals.
-- Changing `portalId` moves the content to the new host and remounts its children, resetting their local state.
-- A host renders portal content at its own position in the native view tree. Choose its surrounding layout to cover the intended area; targeting a host does not create a native modal or an accessibility focus trap.
+- Changing `hostId` moves the content to the new host and remounts its children, resetting their local state.
+- A host renders portal content at its own position in the native view tree. Choose its surrounding layout to cover the intended area. A generic `Portal` does not create a native modal or manage accessibility focus.
+
+## Screen-reader focus
+
+Portal dialogs manage VoiceOver and TalkBack through the same code, without `accessibilityViewIsModal`. A top-level host has no ancestor `PortalHost`. When its dialog opens, every top-level host hides its normal children from accessibility, including nested hosts and their dialogs. Dialogs keep their original portal destination and layout. Among dialogs in top-level hosts, the most recently mounted dialog remains accessible; closing it exposes the previous one.
+
+```tsx
+import { useRef } from 'react';
+import { Pressable, Text, type HostInstance } from 'react-native';
+import { Dialog, PortalHost, useDialog } from 'redialog';
+
+function AccessibleDialog() {
+  const [dialog, { show, hide }] = useDialog();
+  const openerRef = useRef<HostInstance>(null);
+  const titleRef = useRef<HostInstance>(null);
+
+  return (
+    <PortalHost>
+      <Pressable ref={openerRef} accessibilityRole="button" onPress={show}>
+        <Text>Open settings</Text>
+      </Pressable>
+      <Dialog
+        dialog={{ dialog }}
+        portal
+        accessibilityLabel="Settings"
+        backdropAccessibilityLabel="Dismiss settings"
+        initialFocusRef={titleRef}
+        returnFocusRef={openerRef}
+      >
+        <Text ref={titleRef} accessible accessibilityRole="header">
+          Settings
+        </Text>
+        <Pressable accessibilityRole="button" onPress={hide}>
+          <Text>Close settings</Text>
+        </Pressable>
+      </Dialog>
+    </PortalHost>
+  );
+}
+```
+
+All label and focus-ref props are optional.
+
+- `accessibilityLabel` names the fallback heading used for initial focus (default: `Dialog`).
+- `backdropAccessibilityLabel` names the dismissible backdrop button (default: `Close dialog`). The button is hidden from accessibility when `backdropTouchToClose` is `false`; no backdrop button is rendered when `backdrop` is `false`.
+- `initialFocusRef` identifies an accessible native element inside the dialog. Focus moves there after layout and the opening animation. Without it, focus moves to the fallback heading.
+- `returnFocusRef` identifies an accessible native element to focus when the last dialog finishes closing. If another dialog remains, that dialog receives its initial focus instead. There is no automatic opener detection.
+- Hosts can only hide content they own. Put the screen's content inside top-level hosts to exclude it while a top-level dialog is open. Native navigation, Expo development controls, and other views outside those hosts remain outside this boundary.
+- A nested-host dialog hides its own host's normal children. It does not isolate the entire screen; an active dialog in a shallower host takes priority. Inline dialogs do not isolate surrounding views.
+- Keep host containers sized to the intended overlay area. Host children use a flex container, with portal content in a separate absolute-fill layer.
 
 ## Full Example
 

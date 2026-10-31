@@ -43,8 +43,12 @@ CI checks formatting, lint, types, changeset validity, Jest tests, and the packa
 Root `AGENTS.md` is the default fact owner and the only router to knowledge and troubleshooting documents. Each retained fact has one owner; each routed document owns only the responsibilities assigned below. Update the owner and this routing section together when ownership or paths change.
 
 - .agents/knowledge/domain.md
-  Owns domain terminology, dialog lifecycle, and portal routing contracts. Read before changing those behaviors.
+  Owns domain terminology, dialog lifecycle, portal routing, and accessibility isolation contracts. Read before changing those behaviors.
 - .agents/knowledge/verification.md
   Owns conditional device, accessibility, and release verification, including test limitations. Read when changing those areas.
 - .agents/troubleshooting/changesets-root-package.md
   Owns the Changesets workspace-discovery decision. Read before diagnosing a missing release target or changing workspace package selection.
+- .agents/troubleshooting/android-screen-reader-verification.md
+  Owns the separation of UI automation from live TalkBack verification. Read before interpreting Android accessibility snapshots or diagnosing a screen reader that stops during automation.
+- .agents/troubleshooting/expo-android-local-network.md
+  Owns Android local-network permission checks for Expo Go development loading. Read before diagnosing remote-update downloads that fail on a fresh Android device.

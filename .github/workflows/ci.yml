@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Setup
         uses: ./.github/actions/setup
@@ -34,7 +36,12 @@ jobs:
         run: pnpm typecheck
 
       - name: Validate changesets
-        run: pnpm changeset status
+        if: (github.head_ref || github.ref_name) != 'changeset-release/main'
+        run: |
+          if ! git show-ref --verify --quiet refs/heads/main; then
+            git branch main origin/main
+          fi
+          pnpm changeset status
 
       - name: Test
         run: pnpm test --runInBand

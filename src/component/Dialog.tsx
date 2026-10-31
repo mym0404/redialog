@@ -6,6 +6,8 @@ import {
   type RefObject,
   useRef,
   useMemo,
+  useId,
+  useEffect,
 } from 'react';
 import Animated, {
   useAnimatedStyle,
@@ -21,11 +23,12 @@ import {
   Pressable,
   type StyleProp,
   type ViewStyle,
+  type HostInstance,
   View,
   type LayoutChangeEvent,
   useWindowDimensions,
 } from 'react-native';
-import { useBackPress } from '../internal/useBackPress';
+import { DialogAccessibility } from '../internal/DialogAccessibility';
 import { Portal } from '../internal/Portal';
 import type { NoobSymbol } from '../internal/type';
 import { useStableCallback } from '../internal/useStableCallback';
@@ -42,7 +45,11 @@ export type DialogProps<T = NoobSymbol> = PropsWithChildren<{
   backpressToClose?: boolean;
   backdropTouchToClose?: boolean;
   portal?: boolean;
-  portalId?: string;
+  hostId?: string;
+  accessibilityLabel?: string;
+  backdropAccessibilityLabel?: string;
+  initialFocusRef?: RefObject<HostInstance | null>;
+  returnFocusRef?: RefObject<HostInstance | null>;
   backdropColor?: string;
   showAnimationValue?: SharedValue<number>;
   style?: StyleProp<ViewStyle>;
@@ -92,7 +99,11 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
       backpressToClose = true,
       backdropTouchToClose = true,
       portal = false,
-      portalId,
+      hostId,
+      accessibilityLabel = 'Dialog',
+      backdropAccessibilityLabel = 'Close dialog',
+      initialFocusRef,
+      returnFocusRef,
       backdropColor = '#111a',
       showAnimationValue,
       children,
@@ -106,6 +117,8 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
     const [wrapperHeight, setWrapperHeight] = useState(vh);
     const [isShow, setShow] = useState(false);
     const [isHiding, setHiding] = useState(false);
+    const [isFocusReady, setFocusReady] = useState(false);
+    const accessibilityId = useId();
 
     const _showValue = useSharedValue(0);
     const showValue = showAnimationValue || _showValue;
@@ -118,12 +131,14 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
       clearTimeout(timeoutHandle.current);
       setHiding(false);
       setShow(true);
+      setFocusReady(false);
       onShowStarted?.();
       showValue.value = withTiming(1, {
         duration: 250,
         reduceMotion: ReduceMotion.Never,
       });
       timeoutHandle.current = setTimeout(() => {
+        setFocusReady(true);
         onShowEnd?.();
       }, 250);
     });
@@ -134,6 +149,7 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
       clearTimeout(timeoutHandle.current);
       onHideStarted?.();
       setHiding(true);
+      setFocusReady(false);
       setShow(false);
       showValue.value = withTiming(0, {
         duration: 200,
@@ -144,6 +160,8 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
         setHiding(false);
       }, 350);
     });
+
+    useEffect(() => () => clearTimeout(timeoutHandle.current), []);
 
     const [contentHeight, setContentHeight] = useState(0);
     const onLayout = (e: LayoutChangeEvent) => {
@@ -167,8 +185,6 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
       ],
     }));
 
-    useBackPress(isShow && backpressToClose, hide);
-
     useImperativeHandle(ref, () => ({ show, hide }), [show, hide]);
 
     const shouldBeUnmounted = !isShow && !isHiding;
@@ -176,48 +192,57 @@ const _Dialog = forwardRef<DialogRef<any>, Omit<DialogProps<any>, 'dialog'>>(
     if (shouldBeUnmounted) return null;
 
     const element = (
-      <View
-        aria-modal
-        accessible
-        style={[
-          StyleSheet.absoluteFill,
-          bottomSheet ? styles.wrapperBottomSheet : styles.wrapperDialog,
-        ]}
-        pointerEvents={!isShow ? 'none' : 'box-none'}
-        onLayout={(e) => setWrapperHeight(e.nativeEvent.layout.height)}
+      <DialogAccessibility
+        id={accessibilityId}
+        label={accessibilityLabel}
+        isReady={isFocusReady}
+        backpressToClose={isShow && backpressToClose}
+        onClose={hide}
+        initialFocusRef={initialFocusRef}
+        returnFocusRef={returnFocusRef}
       >
-        {!backdrop ? null : (
-          <RePressable
-            aria-hidden={!backdropTouchToClose}
-            disabled={!backdropTouchToClose}
-            role={'button'}
-            accessibilityHint={`Tap to close modal`}
-            style={[
-              StyleSheet.absoluteFill,
-              { backgroundColor: backdropColor, opacity: showValue },
-            ]}
-            onPress={hide}
-          />
-        )}
-        <Animated.View
+        <View
           style={[
-            modalStyle,
-            style,
-            bottomSheet
-              ? [
-                  bottomSheetStyle,
-                  { position: 'absolute', top: wrapperHeight, width: '100%' },
-                ]
-              : { opacity: showValue },
+            StyleSheet.absoluteFill,
+            bottomSheet ? styles.wrapperBottomSheet : styles.wrapperDialog,
           ]}
-          onLayout={onLayout}
+          pointerEvents={!isShow ? 'none' : 'box-none'}
+          onLayout={(e) => setWrapperHeight(e.nativeEvent.layout.height)}
         >
-          {children}
-        </Animated.View>
-      </View>
+          {!backdrop ? null : (
+            <RePressable
+              aria-hidden={!backdropTouchToClose}
+              disabled={!backdropTouchToClose}
+              role={'button'}
+              accessibilityLabel={backdropAccessibilityLabel}
+              accessibilityHint={`Tap to close modal`}
+              style={[
+                StyleSheet.absoluteFill,
+                { backgroundColor: backdropColor, opacity: showValue },
+              ]}
+              onPress={hide}
+            />
+          )}
+          <Animated.View
+            style={[
+              modalStyle,
+              style,
+              bottomSheet
+                ? [
+                    bottomSheetStyle,
+                    { position: 'absolute', top: wrapperHeight, width: '100%' },
+                  ]
+                : { opacity: showValue },
+            ]}
+            onLayout={onLayout}
+          >
+            {children}
+          </Animated.View>
+        </View>
+      </DialogAccessibility>
     );
-    if (portal || portalId !== undefined) {
-      return <Portal portalId={portalId}>{element}</Portal>;
+    if (portal || hostId !== undefined) {
+      return <Portal hostId={hostId}>{element}</Portal>;
     } else {
       return element;
     }
